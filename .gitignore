@@ -1,0 +1,22 @@
+# Byte-compiled / optimized files
+__pycache__/
+__pycache__
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+.venv/
+.env
+
+# IDE settings
+.idea
+.idea/
+.vscode/
+
+# Testing/Uploads (from the book)
+static/images/avatars/*
+static/images/recipes/*
+
+# Logs
+*.log
