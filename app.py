@@ -6,7 +6,7 @@ from config import Config
 from extensions import db, jwt
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
-from resources.user import UserListResource, UserResource, MeSource
+from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource
 from resources.token import TokenResource, RefreshResource, RevokeResouce, black_list
 
 # app = Flask(__name__)
@@ -37,6 +37,8 @@ def register_resources(app):
 
     api.add_resource(UserListResource, '/users')
     api.add_resource(UserResource, '/users/<string:username>')
+    api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
+
     api.add_resource(MeSource, '/me')
 
     api.add_resource(TokenResource, '/token')

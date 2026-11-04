@@ -35,16 +35,16 @@ class Recipe(db.Model):
     #         'directions': self.directions,
     #     }
 
-    def data(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'num_of_servings': self.num_of_servings,
-            'cook_time': self.cook_time,
-            'directions': self.directions,
-            'user_id': self.user_id
-        }
+    # def data(self):
+    #     return {
+    #         'id': self.id,
+    #         'name': self.name,
+    #         'description': self.description,
+    #         'num_of_servings': self.num_of_servings,
+    #         'cook_time': self.cook_time,
+    #         'directions': self.directions,
+    #         'user_id': self.user_id
+    #     }
 
     @classmethod
     def get_all_published(cls):
@@ -62,4 +62,13 @@ class Recipe(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def get_all_by_user(cls, user_id, visibility='public'):
+        if visibility == 'public':
+            return cls.query.filter_by(user_id=user_id, is_publish=True).all()
+        elif visibility == 'private':
+            return cls.query.filter_by(user_id=user_id, is_publish=False).all()
+        else:
+            return cls.query.filter_by(user_id=user_id).all()
 
