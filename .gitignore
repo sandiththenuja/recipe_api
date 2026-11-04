@@ -1,6 +1,5 @@
 # Byte-compiled / optimized files
 __pycache__/
-__pycache__
 *.py[cod]
 *$py.class
 
@@ -20,8 +19,3 @@ static/images/recipes/*
 
 # Logs
 *.log
-
-migrations/__pycache__
-models/__pycache__
-resources/__pycache__
-schemas/__pycache__
