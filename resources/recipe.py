@@ -54,15 +54,16 @@ class RecipeResource(Resource):
     def get(self, recipe_id):
         recipe = Recipe.get_by_id(recipe_id=recipe_id)
 
-        if recipe is None:
-            return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
+        # if recipe is None:
+        #     return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
 
-        current_user = get_jwt_identity()
+        # current_user = get_jwt_identity()
 
-        if recipe.is_publish == False and recipe.user_id != current_user:
-            return {'message': 'access not allowed'}, HTTPStatus.FORBIDDEN
+        # if recipe.is_publish == False and recipe.user_id != current_user:
+        #     return {'message': 'access not allowed'}, HTTPStatus.FORBIDDEN
         
-        return recipe.data(), HTTPStatus.OK
+        # return recipe.data(), HTTPStatus.OK
+        return recipe_schema.dump(recipe), HTTPStatus.OK
 
     @jwt_required()
     def put(self, recipe_id):

@@ -1,13 +1,16 @@
 from flask import Flask
 from flask_restful import Api
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
 from config import Config
 from extensions import db, jwt
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
-from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource
-from resources.token import TokenResource, RefreshResource, RevokeResouce, black_list
+from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource
+from resources.token import TokenResource, RefreshResource, RevokeResource, black_list
+
+load_dotenv()
 
 # app = Flask(__name__)
 # api = Api(app)
@@ -38,12 +41,13 @@ def register_resources(app):
     api.add_resource(UserListResource, '/users')
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
+    api.add_resource(UserActivateResource, '/users/activate/<string:token>')
 
     api.add_resource(MeSource, '/me')
 
     api.add_resource(TokenResource, '/token')
     api.add_resource(RefreshResource, '/refresh')
-    api.add_resource(RevokeResouce, '/revoke')
+    api.add_resource(RevokeResource, '/revoke')
     
     api.add_resource(RecipeListResource, '/recipes')
     api.add_resource(RecipeResource, '/recipes/<int:recipe_id>')
