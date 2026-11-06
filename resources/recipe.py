@@ -31,9 +31,13 @@ class RecipeListResource(Resource):
     #     # return {'data': data}, HTTPStatus.OK
     #     return recipe_list_schema.dump(recipes), HTTPStatus.OK
 
-    @use_kwargs({'page': fields.Int(load_default=1), 'per_page': fields.Int(load_default=20)}, location='query')
-    def get(self, page, per_page):
-        paginated_recipes = Recipe.get_all_published(page, per_page)
+    @use_kwargs({
+        'q': fields.String(load_default=''), 
+        'page': fields.Int(load_default=1), 
+        'per_page': fields.Int(load_default=20)
+        }, location='query')
+    def get(self, q, page, per_page):
+        paginated_recipes = Recipe.get_all_published(q, page, per_page)
 
         return recipe_pagination_schema.dump(paginated_recipes), HTTPStatus.OK
 
