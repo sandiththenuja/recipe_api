@@ -9,3 +9,6 @@ class Config:
 
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+
+    UPLOADED_IMAGES_DEST = 'static/images'  # attribute name in extensions.py 
+    # image_set = UploadSet('images', IMAGES)

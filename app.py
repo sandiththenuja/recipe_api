@@ -1,13 +1,14 @@
-from flask import Flask
+from flask import Flask, url_for
 from flask_restful import Api
 from flask_migrate import Migrate
+from flask_uploads import configure_uploads
 from dotenv import load_dotenv
 
 from config import Config
-from extensions import db, jwt
+from extensions import db, jwt, image_set
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
-from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource
+from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource, UserAvatarUploadResource
 from resources.token import TokenResource, RefreshResource, RevokeResource, black_list
 
 load_dotenv()
@@ -21,6 +22,9 @@ def create_app():
 
     register_extensions(app)
     register_resources(app)
+
+    configure_uploads(app, image_set)
+    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 
 
     return app
 
@@ -42,6 +46,7 @@ def register_resources(app):
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
     api.add_resource(UserActivateResource, '/users/activate/<string:token>')
+    api.add_resource(UserAvatarUploadResource, '/users/avatar')
 
     api.add_resource(MeSource, '/me')
 
