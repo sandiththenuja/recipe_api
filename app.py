@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from config import Config
 from extensions import db, jwt, image_set
 
-from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
+from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource, RecipeCoverUploadResource
 from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource, UserAvatarUploadResource
 from resources.token import TokenResource, RefreshResource, RevokeResource, black_list
 
@@ -57,6 +57,7 @@ def register_resources(app):
     api.add_resource(RecipeListResource, '/recipes')
     api.add_resource(RecipeResource, '/recipes/<int:recipe_id>')
     api.add_resource(RecipePublishResource, '/recipes/<int:recipe_id>/publish')
+    api.add_resource(RecipeCoverUploadResource, '/recipes/<int:recipe_id>/cover')
     
 
 # api.add_resource(RecipeListResource, '/recipes')

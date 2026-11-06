@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, post_dump, validate, validates, ValidationError
 from schemas.user import UserSchema
+from flask import url_for
 
 def validate_num_of_servings(n):
     if n<1:
@@ -18,6 +19,7 @@ class RecipeSchema(Schema):
     cook_time = fields.Integer()
     directions = fields.String(validate=[validate.Length(max=1000)])
     is_publish = fields.Boolean(dump_only=True)
+    cover_url = fields.Method(serialize='dump_cover_url')
 
     author = fields.Nested(UserSchema, attribute='user', dump_only=True, exclude=('email',))
 
@@ -37,3 +39,9 @@ class RecipeSchema(Schema):
         if many:
             return {'data': data}
         return data
+
+    def dump_cover_url(self, recipe):
+        if recipe.cover_image:
+            return url_for('static', filename='images/recipes/{}'.format(recipe.cover_image), _external=True)
+        else:
+            return url_for('static', filename='images/assets/default-recipe-cover.png', _external=True)
