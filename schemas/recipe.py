@@ -2,6 +2,8 @@ from marshmallow import Schema, fields, post_dump, validate, validates, Validati
 from schemas.user import UserSchema
 from flask import url_for
 
+from schemas.pagination import PaginationSchema
+
 def validate_num_of_servings(n):
     if n<1:
         raise ValidationError('Number of servings must be greater than 0')
@@ -21,7 +23,7 @@ class RecipeSchema(Schema):
     is_publish = fields.Boolean(dump_only=True)
     cover_url = fields.Method(serialize='dump_cover_url')
 
-    author = fields.Nested(UserSchema, attribute='user', dump_only=True, exclude=('email',))
+    author = fields.Nested(UserSchema, attribute='user', dump_only=True, only=['id', 'username'])
 
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
@@ -34,14 +36,18 @@ class RecipeSchema(Schema):
         if value>300:
             raise ValidationError('Cook time must be less than 300')
 
-    @post_dump(pass_collection=True)
-    def wrap(self, data, many, **kwargs):
-        if many:
-            return {'data': data}
-        return data
+    # @post_dump(pass_collection=True)  this doesn't need for pagination
+    # def wrap(self, data, many, **kwargs):
+    #     if many:
+    #         return {'data': data}
+    #     return data
+
 
     def dump_cover_url(self, recipe):
         if recipe.cover_image:
             return url_for('static', filename='images/recipes/{}'.format(recipe.cover_image), _external=True)
         else:
             return url_for('static', filename='images/assets/default-recipe-cover.png', _external=True)
+
+class RecipePaginationSchema(PaginationSchema):
+    data = fields.Nested(RecipeSchema, attribute='items', many=True)

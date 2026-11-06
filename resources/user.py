@@ -13,7 +13,7 @@ from models.user import User
 from models.recipe import Recipe
 
 from schemas.user import UserSchema
-from schemas.recipe import RecipeSchema
+from schemas.recipe import RecipeSchema, RecipePaginationSchema
 
 from mailgun import MailgunApi
 
@@ -26,6 +26,7 @@ user_public_schema = UserSchema(exclude=('email', ))
 user_avatar_schema = UserSchema(only=('avatar_url',))
 
 recipe_list_schema = RecipeSchema(many=True)
+recipe_pagination_schema = RecipePaginationSchema()
 
 class UserListResource(Resource):
     def post(self):
@@ -123,9 +124,9 @@ class MeSource(Resource):
         return data, HTTPStatus.OK
 
 class UserRecipeListResource(Resource):
-    @use_kwargs({'visibility': fields.Str(load_default='public')}, location="query")  # location tells to look specifically in query which is visibility
+    @use_kwargs({'page': fields.Int(load_default=1), 'per_page': fields.Int(load_default=10), 'visibility': fields.Str(load_default='public')}, location="query")  # location tells to look specifically in query which is visibility
     @jwt_required(optional=True)
-    def get(self, username, visibility):
+    def get(self, username, page, per_page, visibility):
         user = User.get_by_username(username=username)
 
         if user is None:
@@ -133,7 +134,7 @@ class UserRecipeListResource(Resource):
 
         current_user = get_jwt_identity()
 
-        print(f"DEBUG: Visibility requested is: {visibility}") # 👈 Debug print
+        print(f"DEBUG: Visibility requested is: {visibility}")
         print(f"DEBUG: Current user is: {current_user}") 
 
         if current_user and int(current_user) == user.id and visibility in ['all', 'private']:
@@ -141,9 +142,9 @@ class UserRecipeListResource(Resource):
         else:
             visibility = 'public'
 
-        recipes = Recipe.get_all_by_user(user_id=user.id, visibility=visibility)
+        recipes = Recipe.get_all_by_user(user_id=user.id, page=page, per_page=per_page, visibility=visibility)
 
-        return recipe_list_schema.dump(recipes), HTTPStatus.OK
+        return recipe_pagination_schema.dump(recipes), HTTPStatus.OK
 
 class UserActivateResource(Resource):
     def get(self, token):
