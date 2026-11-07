@@ -18,3 +18,4 @@ Pillow
 gunicorn
 python-dotenv
 requests
+vercel

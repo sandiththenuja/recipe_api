@@ -9,7 +9,7 @@ from extensions import image_set, cache
 
 import os
 from PIL import Image
-import vercel_blob
+from vercel import blob
 
 def hash_password(password):
     return pbkdf2_sha256.hash(password)
@@ -36,7 +36,15 @@ def save_image(image, folder):
 
     filename = compress_image(filename=filename, folder=folder)
 
-    return filename
+    # return filename
+    result = blob.upload_file(
+        local_path=None, # We are uploading bytes, not a file path
+        path=f"{folder}/{filename}",
+        access="public",
+        # The official SDK may require you to pass the bytes differently.
+        # Check the 'vercel' package docs for the exact byte upload method.
+    )
+    return result.url
 
 def compress_image(filename, folder):
     file_path = image_set.path(filename=filename, folder=folder)
