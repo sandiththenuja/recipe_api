@@ -9,6 +9,7 @@ from extensions import image_set, cache
 
 import os
 from PIL import Image
+import vercel_blob
 
 def hash_password(password):
     return pbkdf2_sha256.hash(password)

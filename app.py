@@ -11,6 +11,8 @@ from resources.recipe import RecipeListResource, RecipeResource, RecipePublishRe
 from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource, UserAvatarUploadResource
 from resources.token import TokenResource, RefreshResource, RevokeResource, black_list
 
+import os
+
 load_dotenv()
 
 # app = Flask(__name__)
@@ -21,8 +23,18 @@ load_dotenv()
 #     return request.remote_addr == '127.0.0.1'
 
 def create_app():
+    env = os.environ.get('ENV', 'Development')
+
+    if env == 'Production':
+        config_str = 'config.ProductionConfig'
+    elif env == 'Staging':
+        config_str = 'config.StagingConfig'
+    else:
+        config_str = 'config.DevelopmentConfig'
+
     app = Flask(__name__)
-    app.config.from_object(Config)
+    # app.config.from_object(Config) before deployment
+    app.config.from_object(config_str)
 
     register_extensions(app)
     register_resources(app)
