@@ -8,7 +8,7 @@ import os
 from webargs import fields
 from webargs.flaskparser import use_kwargs
 
-from  utils import hash_password, generate_token, verify_token, save_image
+from  utils import hash_password, generate_token, verify_token, save_image, clear_cache
 from models.user import User
 from models.recipe import Recipe
 
@@ -164,6 +164,7 @@ class UserActivateResource(Resource):
         user.is_active = True
 
         user.save()
+        clear_cache('/recipes')
         return {}, HTTPStatus.NO_CONTENT
 
 class UserAvatarUploadResource(Resource):
@@ -187,4 +188,6 @@ class UserAvatarUploadResource(Resource):
 
         user.avatar_image = filename
         user.save()
+        clear_cache('/recipes')
+        
         return user_avatar_schema.dump(user), HTTPStatus.OK

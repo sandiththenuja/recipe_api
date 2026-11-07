@@ -5,7 +5,7 @@ from flask_uploads import configure_uploads
 from dotenv import load_dotenv
 
 from config import Config
-from extensions import db, jwt, image_set
+from extensions import db, jwt, image_set, cache
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource, RecipeCoverUploadResource
 from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource, UserAvatarUploadResource
@@ -23,9 +23,6 @@ def create_app():
     register_extensions(app)
     register_resources(app)
 
-    configure_uploads(app, image_set)
-    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 
-
     return app
 
 def register_extensions(app):
@@ -34,10 +31,29 @@ def register_extensions(app):
     migrate = Migrate(app, db)
     jwt.init_app(app)
 
+    configure_uploads(app, image_set)
+    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 
+
+    cache.init_app(app)
+
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):
         jti = jwt_payload['jti']
         return jti in black_list
+
+    @app.before_request
+    def before_request():
+        print('\n========= before request ========\n')
+        print(cache.cache._cache.keys())
+        print('\n=========================\n')
+
+    @app.after_request
+    def after_request(response):
+        print('\n========= after request ========\n')
+        print(cache.cache._cache.keys())
+        print('\n=========================\n')
+        
+        return response
 
 def register_resources(app):
     api = Api(app)

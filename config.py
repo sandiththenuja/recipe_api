@@ -12,3 +12,6 @@ class Config:
 
     UPLOADED_IMAGES_DEST = 'static/images'  # attribute name in extensions.py 
     # image_set = UploadSet('images', IMAGES)
+
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 10 * 60  # 10 mins 

@@ -5,8 +5,8 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from marshmallow import ValidationError
 
 import os
-from extensions import image_set
-from utils import save_image
+from extensions import image_set, cache
+from utils import save_image, clear_cache
 
 from models.recipe import Recipe
 
@@ -38,7 +38,9 @@ class RecipeListResource(Resource):
         'sort': fields.String(load_default='created_at'),
         'order': fields.String(load_default='desc')
         }, location='query')
+    @cache.cached(timeout=60, query_string=True)
     def get(self, q, page, per_page, sort, order):
+        print('query db')
         if sort not in ['created_at', 'cook_time', 'num_of_servings']:
             sort = 'created_at'
 
@@ -72,6 +74,7 @@ class RecipeListResource(Resource):
         recipe = Recipe(**data)
         recipe.user_id = current_user
         recipe.save()
+        clear_cache('/recipes')
 
         return recipe_schema.dump(recipe), HTTPStatus.CREATED
 
@@ -81,8 +84,8 @@ class RecipeResource(Resource):
     def get(self, recipe_id):
         recipe = Recipe.get_by_id(recipe_id=recipe_id)
 
-        # if recipe is None:
-        #     return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
+        if recipe is None:
+            return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
 
         # current_user = get_jwt_identity()
 
@@ -115,7 +118,7 @@ class RecipeResource(Resource):
 
         recipe.save()
 
-        return recipe.data(), HTTPStatus.OK
+        return recipe_schema.dump(recipe), HTTPStatus.OK
 
     @jwt_required()
     def delete(self, recipe_id):
@@ -130,6 +133,7 @@ class RecipeResource(Resource):
             return {'message': 'access not allowed'}, HTTPStatus.FORBIDDEN
 
         recipe.delete()
+        clear_cache('/recipes')
         return {}, HTTPStatus.NO_CONTENT
 
     @jwt_required()
@@ -153,11 +157,13 @@ class RecipeResource(Resource):
 
         recipe.name = data.get('name') or recipe.name
         recipe.description = data.get('description') or recipe.description
+        recipe.ingredients = data.get('ingredients') or recipe.ingredients
         recipe.num_of_servings = data.get('num_of_servings') or recipe.num_of_servings
         recipe.cook_time = data.get('cook_time') or recipe.cook_time
         recipe.directions = data.get('directions') or recipe.directions
 
         recipe.save()
+        clear_cache('/recipes')
         return recipe_schema.dump(recipe), HTTPStatus.OK
 
 class RecipePublishResource(Resource):
@@ -171,6 +177,7 @@ class RecipePublishResource(Resource):
         recipe.is_publish = True
 
         recipe.save()
+        clear_cache('/recipes')
 
         return {}, HTTPStatus.NO_CONTENT
 
@@ -183,6 +190,7 @@ class RecipePublishResource(Resource):
 
         recipe.is_publish = False
         recipe.save()
+        clear_cache('/recipes')
 
         return {}, HTTPStatus.NO_CONTENT
 
@@ -214,5 +222,7 @@ class RecipeCoverUploadResource(Resource):
 
         recipe.cover_image = filename
         recipe.save()
+        clear_cache('/recipes')
+
         return recipe_cover_schema.dump(recipe), HTTPStatus.OK
         

@@ -17,13 +17,14 @@ class RecipeSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True, validate=[validate.Length(max=100)])
     description = fields.String(validate=[validate.Length(max=200)])
+    ingredients = fields.String(validate=[validate.Length(max=1000)])
     num_of_servings = fields.Integer(validate=validate_num_of_servings)
     cook_time = fields.Integer()
     directions = fields.String(validate=[validate.Length(max=1000)])
     is_publish = fields.Boolean(dump_only=True)
     cover_url = fields.Method(serialize='dump_cover_url')
 
-    author = fields.Nested(UserSchema, attribute='user', dump_only=True, only=['id', 'username'])
+    author = fields.Nested(UserSchema, attribute='user', dump_only=True, only=['id', 'username', 'avatar_url'])
 
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
