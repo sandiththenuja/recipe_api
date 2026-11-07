@@ -17,7 +17,7 @@ from schemas.recipe import RecipeSchema, RecipePaginationSchema
 
 from mailgun import MailgunApi
 
-from extensions import image_set
+from extensions import image_set, limiter
 
 mailgun = MailgunApi(domain=os.environ.get('MAILGUN_DOMAIN'), api_key=os.environ.get('MAILGUN_API_KEY'))
 
@@ -124,6 +124,8 @@ class MeSource(Resource):
         return data, HTTPStatus.OK
 
 class UserRecipeListResource(Resource):
+    decorators = [limiter.limit('3/minute;30/hour;300/day', methods=['GET'], error_message='There are many requests')]
+
     @use_kwargs({'page': fields.Int(load_default=1), 'per_page': fields.Int(load_default=10), 'visibility': fields.Str(load_default='public')}, location="query")  # location tells to look specifically in query which is visibility
     @jwt_required(optional=True)
     def get(self, username, page, per_page, visibility):
@@ -189,5 +191,5 @@ class UserAvatarUploadResource(Resource):
         user.avatar_image = filename
         user.save()
         clear_cache('/recipes')
-        
+
         return user_avatar_schema.dump(user), HTTPStatus.OK

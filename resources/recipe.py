@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from marshmallow import ValidationError
 
 import os
-from extensions import image_set, cache
+from extensions import image_set, cache, limiter
 from utils import save_image, clear_cache
 
 from models.recipe import Recipe
@@ -30,6 +30,7 @@ class RecipeListResource(Resource):
 
     #     # return {'data': data}, HTTPStatus.OK
     #     return recipe_list_schema.dump(recipes), HTTPStatus.OK
+    decorators = [limiter.limit('2 per minute', methods=['GET'], error_message='There are many requests')]
 
     @use_kwargs({
         'q': fields.String(load_default=''), 

@@ -1,11 +1,11 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, request
 from flask_restful import Api
 from flask_migrate import Migrate
 from flask_uploads import configure_uploads
 from dotenv import load_dotenv
 
 from config import Config
-from extensions import db, jwt, image_set, cache
+from extensions import db, jwt, image_set, cache, limiter
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource, RecipeCoverUploadResource
 from resources.user import UserListResource, UserResource, MeSource, UserRecipeListResource, UserActivateResource, UserAvatarUploadResource
@@ -15,6 +15,10 @@ load_dotenv()
 
 # app = Flask(__name__)
 # api = Api(app)
+
+# @limiter.request_filter
+# def ip_whitelist():
+#     return request.remote_addr == '127.0.0.1'
 
 def create_app():
     app = Flask(__name__)
@@ -35,6 +39,7 @@ def register_extensions(app):
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 
 
     cache.init_app(app)
+    limiter.init_app(app)
 
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):
